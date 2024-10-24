@@ -8,6 +8,9 @@ TagManager:
   - Spikes
   - Bounce
   - Enemy
+  - Consumable
+  - Win Condition
+  - Win
   layers:
   - Default
   - TransparentFX

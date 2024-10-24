@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+// Setting up slider for any healthbar I use
 public class HealthBar : MonoBehaviour
 {
     public Slider slider;

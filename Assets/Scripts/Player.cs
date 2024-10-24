@@ -10,10 +10,14 @@ public class Player : MonoBehaviour
     Rigidbody2D rb;
     Animator anim;
     Helper helper;
+    public GameObject winnerText;
+    public Enemy enemiesKilled;
     public HealthBar healthBar;
     public GameObject spawnPoint;
     public GameObject gameOverText;
     public GameObject enemy;
+    public List<GameObject> enemies = new List<GameObject>();
+ 
     private float speed = 0;
     private float jumpHeight = 0;
     private float bounceMultiplyer = 2;
@@ -24,11 +28,13 @@ public class Player : MonoBehaviour
     private float timer = 0;
     private float hitTimer = 0;
     public int currentHealth;
-    private bool start = true;
+    public bool start = true;
     private bool spawnTimer = false;
     private bool hit = false;
     private int enemyDamage = 5;
     private bool pushBack = false;
+    private int healthPotion = 20;
+    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -37,13 +43,17 @@ public class Player : MonoBehaviour
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
         gameOverText.gameObject.SetActive(false);
+        winnerText.gameObject.SetActive(false);
     }
-
-    // Update is called once per frame
     void Update()
     {
         if (start == true) // get up from downstate
         {
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                enemies[i].SetActive(true);
+            }
+            enemiesKilled.enemyKilled = 0;
             anim.SetBool("Start", true);
             if (Input.anyKey == true)
             {
@@ -64,9 +74,10 @@ public class Player : MonoBehaviour
             Death();
         }        
     }
+    // Enemy moving (fliping when switching direction)
     void Move()
     {
-        if (Input.GetKey("d") == true)
+        if (Input.GetKey("d") == true || Input.GetKey(KeyCode.RightArrow))
         {
             rb.velocity = new Vector2(speed, rb.velocity.y);
             if (facingRight == false && rb.velocity.x > 0)
@@ -74,7 +85,7 @@ public class Player : MonoBehaviour
                 Flip();
             }
         }
-        else if (Input.GetKey("a") == true)
+        else if (Input.GetKey("a") == true || Input.GetKey(KeyCode.LeftArrow))
         {
             rb.velocity = new Vector2(-speed, rb.velocity.y);
             if (facingRight == true && rb.velocity.x < 0)
@@ -109,6 +120,7 @@ public class Player : MonoBehaviour
 
         facingRight = !facingRight;
     }
+    // Player Animations
     void Animations()
     {
         if ((rb.velocity.x > 0 || rb.velocity.x < 0) && groundRay == true)
@@ -138,7 +150,7 @@ public class Player : MonoBehaviour
         }
     }
 
-
+    // Player dying
     void Death()
     {
         if (currentHealth <= 0)
@@ -166,6 +178,7 @@ public class Player : MonoBehaviour
             }
         }
     }
+    // interval betwwen death state and respawn
     void Wait(float seconds)
     {
 
@@ -177,6 +190,7 @@ public class Player : MonoBehaviour
             timer = 0;
         }
     }
+    // player taking damage from enemy (+ pushback)
     void Hit()
     {
         if (hit == true)
@@ -232,6 +246,23 @@ public class Player : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy"))
         {
             hit = true;
+        }
+        if (other.gameObject.CompareTag("Consumable") && currentHealth <= maxHealth - healthPotion)
+        {
+            currentHealth += healthPotion;
+            healthBar.SetHealth(currentHealth);
+            other.gameObject.SetActive(false);
+        }
+        else if (other.gameObject.CompareTag("Consumable") && maxHealth - currentHealth < 20 && maxHealth - currentHealth > 0)
+        {
+            currentHealth += maxHealth - currentHealth;
+            healthBar.SetHealth(currentHealth);
+            other.gameObject.SetActive(false);
+        }
+        if (other.gameObject.CompareTag("Win"))
+        {
+            winnerText.SetActive(true);
+            Destroy(other.gameObject);
         }
     }
 

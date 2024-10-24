@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
     Rigidbody2D rb;
     SpriteRenderer sr;
     Helper helper;
+    public Player player;
     public HealthBar healthBar;
     private Animator animator;
     private float enemySpeed = 2;
@@ -18,6 +19,8 @@ public class Enemy : MonoBehaviour
     public int currentEnemyHealth = 0;
     private int playerDamage = 10;
     private float timer;
+    public int enemyKilled = 0;
+    private bool enemyDead = false;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -36,8 +39,13 @@ public class Enemy : MonoBehaviour
         EnemyAnimations();
         PlayerDealingDamage();
         Death();
+        DeathCounter();
+        if (player.start == true)
+        {
+            gameObject.SetActive(true);
+        }
     }
-
+    // patrolling enemy
     void EnemyPatrol()
     {
         if (playerInAttackRange == false)
@@ -60,6 +68,7 @@ public class Enemy : MonoBehaviour
             rb.velocity = new Vector2(0, 0);
         }
     }
+    // Animations for enemy
     void EnemyAnimations()
     {
         if (rb.velocity.y > 0 || rb.velocity.y < 0)
@@ -82,6 +91,7 @@ public class Enemy : MonoBehaviour
         }
 
     }
+    // Player dealing damage to enemy (enemy taking damage)
     void PlayerDealingDamage()
     {
         if (playerAttacking == true && Input.GetKey("f") == true)
@@ -108,13 +118,30 @@ public class Enemy : MonoBehaviour
             playerAttacking = false;
         }
     }
+    // Enemy Dying after health = 0
     void Death()
     {
         if (currentEnemyHealth <= 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            enemyDead = true;
+            if (gameObject != null)
+            {
+                currentEnemyHealth = enemyMaxHealth;
+                healthBar.SetMaxHealth(enemyMaxHealth);
+            }
         }
     }
+    void DeathCounter()
+    {
+        if (enemyDead == true)
+        {
+            enemyKilled++;
+            Debug.Log("enemies killed: " + enemyKilled);
+            enemyDead = false;
+        }
+    }
+    // enemy trigger radius
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player"))
@@ -132,3 +159,5 @@ public class Enemy : MonoBehaviour
         }
     }
 }
+
+

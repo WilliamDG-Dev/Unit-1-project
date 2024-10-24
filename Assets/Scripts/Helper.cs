@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
+// Helper Script for raycasting
 public class Helper : MonoBehaviour
 {
     LayerMask groundLayerMask;
